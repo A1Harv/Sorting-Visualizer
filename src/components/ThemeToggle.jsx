@@ -24,7 +24,7 @@ function ThemeToggle() {
       onClick={toggleTheme}
       className="fixed top-4 right-4 px-3 py-1 rounded shadow bg-gray-200 dark:bg-gray-700 text-black dark:text-white hover:scale-105 transition"
     >
-      {theme === "dark" ? "☀" : "🌙 "}
+      {theme === "dark" ? "🌙" : "☀ "} 
     </button>
   );
 }

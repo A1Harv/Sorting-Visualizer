@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { getBubbleSortAnimations } from '../algorithms/bubblesort';
 import { getMergeSortAnimations } from '../algorithms/mergesort';
 import { getQuickSortAnimations } from '../algorithms/quicksort';
+import AlgorithmDropdown from './AlgorithmDropdown';
+import algorithmInfo from '../data/algorithmInfo';
 
 const NUMBER_OF_BARS = 50;
 const PRIMARY_COLOR = '#3b82f6'; // Tailwind blue-500
 const SECONDARY_COLOR = '#ef4444'; // Tailwind red-500
+const completionSound = new Audio('/success-chime.mp3');
+
 
 const SortingVisualizer = () => {
   const [array, setArray] = useState([]);
   const [algorithm, setAlgorithm] = useState('bubble');
   const [speed, setSpeed] = useState(100); // Default speed in ms
+  const [isSorting,setisSorting] = useState(false);
 
   useEffect(() => {
     generateNewArray();
@@ -24,6 +29,7 @@ const SortingVisualizer = () => {
   };
 
   const startSort = () => {
+    setisSorting(true);
     if (algorithm === 'bubble') bubbleSort();
     else if (algorithm === 'merge') mergeSort();
     else if (algorithm === 'quick') quickSort();
@@ -56,6 +62,11 @@ const SortingVisualizer = () => {
         barTwo.style.backgroundColor = PRIMARY_COLOR;
       }, (i + 1) * speed);
     }
+    setTimeout(() => {
+      setisSorting(false);
+      completionSound.currentTime = 0;
+completionSound.play();
+    },animations.length * speed+100);
   };
 
   const mergeSort = () => {
@@ -83,6 +94,11 @@ const SortingVisualizer = () => {
         }, i * speed);
       }
     }
+    setTimeout(() => {
+      setisSorting(false);
+      completionSound.currentTime = 0;
+      completionSound.play();
+    },animations.length * speed+100);
   };
 
 const quickSort = () => {
@@ -112,6 +128,11 @@ const quickSort = () => {
       }, i * speed);
     }
   }
+   setTimeout(() => {
+      setisSorting(false);
+      completionSound.currentTime = 0;
+      completionSound.play();
+    },animations.length * speed+100);
 };
 
   return (
@@ -120,22 +141,15 @@ const quickSort = () => {
 
       <div className="flex flex-wrap gap-4 mb-6 justify-center items-center">
         <button
-          onClick={generateNewArray}
+          onClick={generateNewArray} disabled={isSorting}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
           Generate New Array
         </button>
-        <select
-          value={algorithm}
-          onChange={(e) => setAlgorithm(e.target.value)}
-          className="px-4 py-2 rounded border text-sm"
-        >
-          <option value="bubble">Bubble Sort</option>
-          <option value="merge">Merge Sort</option>
-          <option value="quick">Quick Sort</option>
-        </select>
+        <AlgorithmDropdown selected={algorithm} onChange={setAlgorithm} />
+
         <button
-          onClick={startSort}
+          onClick={startSort} disabled={isSorting}
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
         >
           Start Sorting
@@ -157,6 +171,13 @@ const quickSort = () => {
           />
         </div>
       </div>
+<div className="w-full max-w-2xl mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded shadow text-sm">
+  <h2 className="text-lg font-semibold mb-2">{algorithmInfo[algorithm].name}</h2>
+  <p><strong>Time Complexity:</strong> {algorithmInfo[algorithm].time}</p>
+  <p><strong>Space Complexity:</strong> {algorithmInfo[algorithm].space}</p>
+  <p><strong>Stable:</strong> {algorithmInfo[algorithm].stable}</p>
+  <p className="mt-2 text-justify">{algorithmInfo[algorithm].description}</p>
+</div>
 
       <div className="flex items-end h-96 w-full max-w-6xl border p-2 bg-white shadow rounded overflow-hidden">
         {array.map((value, idx) => (
